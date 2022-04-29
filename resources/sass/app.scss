@@ -1,0 +1,13 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+@import '~jquery-ui/themes/base/draggable.css';
+@import '~jquery-ui/themes/base/all.css';
+@import '~toastr/toastr';
+
+@import "./home";
