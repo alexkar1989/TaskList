@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @mixin Builder
@@ -16,9 +17,13 @@ class Permission extends Model
     public $timestamps = false;
 
     protected $fillable = ['permission', 'name'];
+    protected $hidden = ['pivot'];
 
-    public function roles()
+    /**
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, RolePermission::class);
+        return $this->belongsToMany(Role::class, 'role_permissions');
     }
 }

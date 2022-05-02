@@ -23,25 +23,26 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Список пользователя</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/usertasks">Заявки пользователя</a>
-                    </li>
-                </ul>
-
+                @auth
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Все Задачи</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/tasks">Задачи пользователя</a>
+                        </li>
+                    </ul>
+                @endauth
                 <ul class="navbar-nav ms-auto">
                     @guest
                         @if (Route::has('login'))
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                <a class="nav-link" href="{{ route('login') }}">{{ __('Войти') }}</a>
                             </li>
                         @endif
                         @if (Route::has('register'))
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                <a class="nav-link" href="{{ route('register') }}">{{ __('Зарегестрироваться') }}</a>
                             </li>
                         @endif
                     @else
@@ -53,7 +54,7 @@
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    {{ __('Logout') }}
+                                    {{ __('Выйти') }}
                                 </a>
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                     @csrf

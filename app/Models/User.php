@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -36,6 +37,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pivot',
     ];
 
     /**
@@ -48,19 +50,16 @@ class User extends Authenticatable
     ];
 
     /**
-     * @return HasManyThrough
+     * @return hasMany
      */
-    public function tasks(): HasManyThrough
+    public function tasks(): hasMany
     {
-        return $this->hasManyThrough(Task::class, UserTask::class);
+        return $this->hasMany(Task::class, 'user_id', 'id');
     }
 
-    /**
-     * @return HasManyThrough
-     */
-    public function roles(): HasManyThrough
+    public function roles()
     {
-        return $this->hasManyThrough(Role::class, UserRole::class, 'role_id', 'id', 'id', 'user_id');
+        return $this->belongsToMany(Role::class, 'user_roles');
     }
 
     /**
@@ -69,21 +68,23 @@ class User extends Authenticatable
      */
     public function hasRole(string|array $roles): bool
     {
-        $user = auth()->user();
         if (!is_array($roles)) $roles = explode(",", $roles);
         foreach ($roles as $role) {
-            if (!$user->whereHas('roles.permissions', fn($query) => $query->where('permission', $role))->exists()) return false;
+            if ($this->where('id', $this->id)->whereHas('roles', fn($query) => $query->where('role', $role))->exists()) return true;
         }
-        return true;
+        return false;
     }
 
     /**
-     * @param string|array $roles
+     * @param string|array $permissions
      * @return bool
      */
-    public function notHasRole(string|array $roles): bool
+    public function hasPermission(string|array $permissions): bool
     {
-        $user = auth()->user();
+        if (!is_array($permissions)) $permissions = explode(",", $permissions);
+        foreach ($permissions as $permission) {
+            if ($this->where('id', $this->id)->whereHas('roles.permissions', fn($query) => $query->where('permission', $permission))->exists()) return true;
+        }
         return false;
     }
 

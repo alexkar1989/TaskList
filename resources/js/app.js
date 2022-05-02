@@ -12,8 +12,8 @@ import 'jquery-ui/ui/widgets/dialog';
 require('datatables.net');
 require('axios')
 
-require('./home')
-
+require('./main')
+require('./user')
 window.Vue = require('vue').default;
 
 /**

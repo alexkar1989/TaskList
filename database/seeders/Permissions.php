@@ -16,18 +16,23 @@ class Permissions extends Seeder
     {
         //TODO: Настроить связь между role и permission
         Permission::upsert([[
-            'permission' => 'create_task',
+            'permission' => 'task_create',
             'name' => 'Создание задачи',
         ], [
-            'permission' => 'delete_task',
+            'permission' => 'task_remove',
             'name' => 'Удаление задачи'
         ], [
-            'permission' => 'attache_file',
+            'permission' => 'file_attach',
             'name' => 'Подключение файлов'
         ], [
-            'permission' => 'List_archive',
+            'permission' => 'archive',
             'name' => 'Просмотр архива'
+        ], [
+            'permission' => 'task_attach',
+            'name' => 'Назначение задачи'
         ]
         ], ['permission', 'name']);
+
+
     }
 }

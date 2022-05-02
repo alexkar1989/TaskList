@@ -12,12 +12,14 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('tasks', function(Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->longText('text')->default('');
-            $table->double('cost')->default(0);
-            $table->string('status')->default('');
+            $table->longText('text')->nullable()->default('');
+            $table->double('cost')->nullable()->default(0);
+            $table->integer('status')->nullable()->default(0);
+            $table->integer('user_id')->nullable()->default(0);
+            $table->integer('creator_id');
             $table->timestamps();
         });
     }

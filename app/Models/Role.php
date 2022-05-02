@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @mixin Builder
@@ -17,19 +17,21 @@ class Role extends Model
     public $timestamps = false;
     protected $fillable = ['role', 'name'];
 
+    protected $hidden = ['pivot'];
+
     /**
-     * @return HasManyThrough
+     * @return BelongsToMany
      */
-    public function users(): HasManyThrough
+    public function users(): BelongsToMany
     {
-        return $this->hasManyThrough(User::class, UserRole::class);
+        return $this->belongsToMany(User::class, 'user_roles');
     }
 
     /**
-     * @return HasManyThrough
+     * @return BelongsToMany
      */
-    public function permissions(): HasManyThrough
+    public function permissions(): BelongsToMany
     {
-        return $this->hasManyThrough(Permission::class, RolePermission::class, 'role_id', 'id', 'id', 'permissions_id');
+        return $this->belongsToMany(Permission::class, 'role_permissions');
     }
 }

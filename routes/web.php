@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MainController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -17,16 +17,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Auth::routes();
+Route::group(['middleware' => 'auth'], function() {
 
-Route::get('/', [HomeController::class, 'index'])->middleware('auth')->name('home');
-Route::get('/usertasks', [UserController::class, 'index'])->middleware('auth')->name('tasks');
+    Route::get('/', [MainController::class, 'index']);
+    Route::get('/usertasks', [UserController::class, 'index']);
 
-Route::group(['middleware' => 'auth'], function () {
     Route::get('/tasks', [TasksController::class, 'index']);
     Route::get('/task/{id}', [TasksController::class, 'show']);
     Route::put('/task', [TasksController::class, 'store']);
     Route::post('/task/{id}', [TasksController::class, 'update']);
     Route::delete('/task/{id}', [TasksController::class, 'destroy']);
+
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/user/tasks', [UserController::class, 'getTask']);
 });
 
 //Route::any('{any}', function () {
