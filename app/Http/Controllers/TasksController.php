@@ -16,7 +16,7 @@ class TasksController extends Controller
     public function index(TaskRequest $request): JsonResponse
     {
         if ($request->user->hasRole('administrator')) {
-            $tasks = Task::with('user')->all();
+            $tasks = Task::with('user')->get();
         } else if ($request->user->hasRole('employer')) {
             $tasks = Task::where('creator_id', $request->user->id)->with('user')->get();
         } else {
