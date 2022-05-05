@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
 use App\Models\Task;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 
 class TasksController extends Controller
 {
     /**
      * @param TaskRequest $request
-     * @return JsonResponse
+     * @return JsonResponse|Redirector|RedirectResponse|Application
      */
-    public function index(TaskRequest $request): JsonResponse
+    public function index(TaskRequest $request): JsonResponse|Redirector|RedirectResponse|Application
     {
+        if (!$request->ajax()) return redirect('/');
         if ($request->user->hasRole('administrator')) {
             $tasks = Task::with('user')->get();
         } else if ($request->user->hasRole('employer')) {
@@ -25,22 +28,51 @@ class TasksController extends Controller
         if ($tasks->isNotEmpty()) {
             foreach ($tasks->toArray() as $index => $task) {
 
-                if ($request->user->hasRole('administrator') || $request->user->hasRole('employer')) {
-                    $tasks[$index]['status'] = ($task['user_id'] !== null && $task['user'] !== null) ? 'Исполняет: ' . $task['user']['name'] : '';
-                } else $tasks[$index]['status'] = "<button id='taskToWork_" . $task['id'] . "' class='btn btn-primary btn-sm' type='button'>Взять в работу</button>";
+                switch ($task['status']) {
+                    case 'new':
+                        if ($request->user->hasRole('worker')) {
+                            $tasks[$index]['action'] = "<button id='taskToWork_" . $task['id'] . "' class='btn btn-primary btn-sm' type='button'>Взять в работу</button>";
+                        } else $tasks[$index]['action'] = '';
+                        $tasks[$index]['status'] = 'Новая';
+                        break;
+                    case 'in_work':
+                        $tasks[$index]['action'] = '';
+                        if ($request->user->hasRole('administrator') || $request->user->hasRole('employer')) {
+                            $tasks[$index]['status'] = ($task['user_id'] !== null && $task['user'] !== null) ? 'Исполняет: ' . $task['user']['name'] : '';
+
+                        } else $tasks[$index]['status'] = 'В работе';
+                        break;
+                    case 'complete':
+                        if ($request->user->hasRole('administrator') || $request->user->hasRole('employer')) {
+                            $tasks[$index]['action'] = "<button id='payForWork_" . $task['id'] . "' class='btn btn-primary btn-sm' type='button'>Оплатить</button>";
+                        } else $tasks[$index]['action'] = "";
+                        $tasks[$index]['status'] = 'Завершена: ' . $task['user']['name'];
+                        break;
+                    default:
+                        $tasks[$index]['status'] = '';
+                        $tasks[$index]['action'] = '';
+                }
+
 
             }
         }
-        return response()->json($tasks);
+        $result = [
+            'draw' => 1,
+            'recordsTotal' => $tasks->count(),
+            'recordsFiltered' => $tasks->count(),
+            'data' => $tasks->toArray(),
+        ];
+        return response()->json($result);
 
     }
 
     /**
      * @param TaskRequest $request
-     * @return JsonResponse
+     * @return JsonResponse|Redirector|RedirectResponse|Application
      */
-    public function store(TaskRequest $request): JsonResponse
+    public function store(TaskRequest $request): JsonResponse|Redirector|RedirectResponse|Application
     {
+        if (!$request->ajax()) return redirect('/');
         if ($request->user->hasPermission('task_create')) {
 
             $params = $request->input();
@@ -49,6 +81,7 @@ class TasksController extends Controller
                 'text' => $params['text'],
                 'cost' => $params['cost'],
                 'creator_id' => $request->user->id,
+                'status' => 'new',
             ];
             $task = Task::create($query);
             if (!empty($params['files'])) {
@@ -64,20 +97,22 @@ class TasksController extends Controller
     /**
      * @param TaskRequest $request
      * @param int $id
-     * @return JsonResponse
+     * @return JsonResponse|Redirector|RedirectResponse|Application
      */
-    public function show(TaskRequest $request, int $id): JsonResponse
+    public function show(TaskRequest $request, int $id): JsonResponse|Redirector|RedirectResponse|Application
     {
+        if (!$request->ajax()) return redirect('/');
         return Response()->json(Task::where('id', $id)->with('files')->first());
     }
 
     /**
      * @param TaskRequest $request
      * @param int $id
-     * @return JsonResponse
+     * @return JsonResponse|Redirector|RedirectResponse|Application
      */
-    public function update(TaskRequest $request, int $id): JsonResponse
+    public function update(TaskRequest $request, int $id): JsonResponse|Redirector|RedirectResponse|Application
     {
+        if (!$request->ajax()) return redirect('/');
         $params = $request->input();
         $task = Task::where('id', $id)->first();
         if ($task->id) {
@@ -86,10 +121,12 @@ class TasksController extends Controller
                 'text' => $params['text'],
                 'cost' => $params['cost'],
             ];
-            if ($params['worker'] !== null) {
-                $query['user_id'] = $params['worker'];
-            }
             $task->update($query);
+            if ($params['worker'] !== null) {
+                $task->user_id = $params['worker'];
+                $task->status = 'in_work';
+                $task->save();
+            }
             return response()->json(null, 204);
         }
         return response()->json(null, 404);
@@ -98,13 +135,15 @@ class TasksController extends Controller
     /**
      * @param TaskRequest $request
      * @param int $id
-     * @return JsonResponse
+     * @return Application|JsonResponse|RedirectResponse|Redirector
      */
-    public function destroy(TaskRequest $request, int $id): JsonResponse
+    public function destroy(TaskRequest $request, int $id): JsonResponse|Redirector|Application|RedirectResponse
     {
+        if (!$request->ajax()) return redirect('/');
         if ($request->user->hasPermission('task_remove')) {
             Task::where('id', $id)->delete();
             return response()->json(null, 204);
         } else return response()->json(null, 403);
     }
+
 }

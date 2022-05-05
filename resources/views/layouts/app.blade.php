@@ -26,11 +26,13 @@
                 @auth
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Все Задачи</a>
+                            <a class="nav-link" href="{{ route('main') }}">Все Задачи</a>
                         </li>
+                        @role('worker')
                         <li class="nav-item">
-                            <a class="nav-link" href="/user/tasks">Задачи пользователя</a>
+                            <a class="nav-link" href="{{ route('userTask') }}">Мои Задачи</a>
                         </li>
+                        @endrole
                     </ul>
                 @endauth
                 <ul class="navbar-nav ms-auto">

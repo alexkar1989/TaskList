@@ -26,6 +26,7 @@
     "dependencies": {
         "axios": "^0.25.0",
         "datatables.net": "^1.11.5",
+        "datatables.net-dt": "^1.11.5",
         "jquery": "^3.6.0",
         "jquery-ui": "^1.13.1",
         "toastr": "^2.1.4",

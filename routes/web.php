@@ -19,17 +19,19 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 Route::group(['middleware' => 'auth'], function() {
 
-    Route::get('/', [MainController::class, 'index']);
-    Route::get('/usertasks', [UserController::class, 'index']);
+    Route::get('/', [MainController::class, 'index'])->name('main');
 
-    Route::get('/tasks', [TasksController::class, 'index']);
-    Route::get('/task/{id}', [TasksController::class, 'show']);
-    Route::put('/task', [TasksController::class, 'store']);
-    Route::post('/task/{id}', [TasksController::class, 'update']);
-    Route::delete('/task/{id}', [TasksController::class, 'destroy']);
+    Route::get('/tasks', [TasksController::class, 'index'])->name('getTasks');
+    Route::get('/task/{id}', [TasksController::class, 'show'])->name('taskInfo');
+    Route::put('/task', [TasksController::class, 'store'])->name('taskStore');
+    Route::post('/task/{id}', [TasksController::class, 'update'])->name('taskUpdate');
+    Route::delete('/task/{id}', [TasksController::class, 'destroy'])->name('taskRemove');
 
     Route::get('/users', [UserController::class, 'index']);
-    Route::get('/user/tasks', [UserController::class, 'getTask']);
+    Route::get('/user/tasks', [UserController::class, 'getTask'])->name('userTask');
+    Route::post('/user/task/link', [UserController::class, 'linkTask'])->name('listTask');
+    Route::post('/user/task/complete', [UserController::class, 'completeTask'])->name('completeTask');
+    Route::post('/user/task/cancel', [UserController::class, 'cancelTask'])->name('cancelTask');
 });
 
 //Route::any('{any}', function () {
