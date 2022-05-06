@@ -14,6 +14,7 @@ require('axios')
 
 require('./main')
 require('./user')
+
 window.Vue = require('vue').default;
 
 /**

@@ -15,11 +15,14 @@ use Illuminate\Routing\Redirector;
 class UserController extends Controller
 {
     /**
-     * @return JsonResponse
+     * @param Request $request
+     * @param ?int $userId
+     * @return JsonResponse|Redirector|RedirectResponse|Application
      */
-    public function index(): JsonResponse
+    public function index(Request $request, ?int $userId = null): JsonResponse|Redirector|RedirectResponse|Application
     {
-        return response()->json(User::all());
+        if (!$request->ajax()) return redirect('/');
+        return response()->json(User::when(!is_null($userId), fn($query) => $query->where('id', $userId)->first(), fn($query) => $query->get()));
     }
 
     /**
@@ -42,12 +45,12 @@ class UserController extends Controller
 
     /**
      * @param Request $request
+     * @param int $taskId
      * @return JsonResponse|Redirector|RedirectResponse|Application
      */
-    public function linkTask(Request $request): JsonResponse|Redirector|RedirectResponse|Application
+    public function linkTask(Request $request, int $taskId): JsonResponse|Redirector|RedirectResponse|Application
     {
         if (!$request->ajax()) return redirect('/');
-        $taskId = $request->input('taskId');
         $task = Task::where('id', $taskId)->first();
         if (!is_null($task) && $task->id) {
             $task->user_id = auth()->user()->getAuthIdentifier();
@@ -59,12 +62,12 @@ class UserController extends Controller
 
     /**
      * @param Request $request
+     * @param int $taskId
      * @return Application|JsonResponse|RedirectResponse|Redirector
      */
-    public function completeTask(Request $request): JsonResponse|Redirector|Application|RedirectResponse
+    public function completeTask(Request $request, int $taskId): JsonResponse|Redirector|Application|RedirectResponse
     {
         if (!$request->ajax()) return redirect('/');
-        $taskId = $request->input('taskId');
         $task = Task::where('id', $taskId)->where('status', 'in_work')->first();
         if (!is_null($task) && $task->id) {
             $task->status = 'complete';
@@ -75,12 +78,12 @@ class UserController extends Controller
 
     /**
      * @param Request $request
+     * @param int $taskId
      * @return Application|JsonResponse|RedirectResponse|Redirector
      */
-    public function cancelTask(Request $request): JsonResponse|Redirector|Application|RedirectResponse
+    public function cancelTask(Request $request, int $taskId): JsonResponse|Redirector|Application|RedirectResponse
     {
         if (!$request->ajax()) return redirect('/');
-        $taskId = $request->input('taskId');
         $task = Task::where('id', $taskId)->where('status', 'in_work')->first();
         if (!is_null($task) && $task->id) {
             $task->status = 'new';
@@ -89,4 +92,6 @@ class UserController extends Controller
             return response()->json(null, 204);
         } else return response()->json(null, 400);
     }
+
+
 }

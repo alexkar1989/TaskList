@@ -15,7 +15,7 @@ return new class extends Migration {
         Schema::create('tasks', function(Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->longText('text')->nullable()->default('');
+            $table->longText('text')->nullable();
             $table->double('cost')->nullable()->default(0);
             $table->integer('status')->nullable()->default(0);
             $table->integer('user_id')->nullable()->default(0);

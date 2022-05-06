@@ -1,1 +1,1 @@
-<div id="confirm_dialog" title="Подтверждение"></div>
+<div id="confirm_dialog" title="Подтверждение" style="display: none"></div>

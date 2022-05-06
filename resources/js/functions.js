@@ -1,20 +1,28 @@
 /**
  *
- * @param {string|numeric}id
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
  */
 export const getTaskInfo = async (id) => {
     return await axios.get('/task/' + id);
 };
 
-export const getUsers = async () => {
-    return await axios.get('/users');
+/**
+ *
+ * @param {numeric}id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getUsers = async (id = 0) => {
+    if (id !== 0) return await axios.get('/user/' + id);
+    else return await axios.get('/users');
 }
+
 /**
  *
  * @param {string}text
- * @param clickFunction
+ * @param {function}closure
  */
-export const confirmDialog = (text, clickFunction) => {
+export const confirmDialog = (text, closure) => {
     const $confirmDialog = $('#confirm_dialog')
     $confirmDialog.html(text);
     $confirmDialog.dialog({
@@ -27,7 +35,7 @@ export const confirmDialog = (text, clickFunction) => {
             text: 'Да',
             class: 'btn btn-danger',
             click: function () {
-                clickFunction();
+                closure();
                 $(this).dialog('close');
             }
         },

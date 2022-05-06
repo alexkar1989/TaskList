@@ -33,6 +33,11 @@
                             <a class="nav-link" href="{{ route('userTask') }}">Мои Задачи</a>
                         </li>
                         @endrole
+                        @notrole('worker')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('usersRating') }}">Рейтинг пользователей</a>
+                        </li>
+                        @endrole
                     </ul>
                 @endauth
                 <ul class="navbar-nav ms-auto">

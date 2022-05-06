@@ -20,7 +20,7 @@ $(document).ready(function () {
         let [type, taskId] = this.id.split('_');
 
         confirmDialog('Вы уверены, что хотите взять задачу №' + taskId, () => {
-            axios.post('/user/task/complete', {taskId}).then(r => {
+            axios.post('/user/task/' + taskId + '/complete').then(r => {
                 let row = $(this).closest('.tasks_row');
                 row.find('.status').html('Завершена');
                 $(this).hide();
@@ -35,7 +35,7 @@ $(document).ready(function () {
     $('[id^=taskCancel_]').click(function (event) {
         let [type, taskId] = this.id.split('_');
         confirmDialog('Вы уверены, что хотите взять отказаться от выполнения задачи №' + taskId, () => {
-            axios.post('/user/task/cancel', {taskId}).then(r => {
+            axios.post('/user/task/' + taskId + '/cancel').then(r => {
                 let parent = $(event.target).parent();
                 parent.closest('.tasks_row').remove();
                 toastr.success('Успех!');
@@ -78,38 +78,4 @@ $(document).ready(function () {
             return JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance))
         }
     });
-    // const confirmDialog = (taskId, action) => {
-    //     $confirmDialog.html('Вы уверены, что хотите завершить задачу №' + taskId);
-    //
-    //     $confirmDialog.dialog({
-    //         autoOpen: false,
-    //         modal: true,
-    //         resizable: false,
-    //         width: 400,
-    //         buttons: [{
-    //             id: 'yes',
-    //             text: 'Да',
-    //             class: 'btn btn-success',
-    //             click: function () {
-    //                 let result = axios.post('/task/' + action, {taskId}).then(r => {
-    //                     parent.closest('.tasks_row').remove();
-    //                     toastr.success('Успех!');
-    //                 }).catch(e => {
-    //                     toastr.error('Ошибка сервера обратитесь к системному администратору');
-    //                 })
-    //                 $(this).dialog('close');
-    //                 return result;
-    //             }
-    //         },
-    //             {
-    //                 id: 'no',
-    //                 text: 'Нет',
-    //                 class: 'btn btn-default',
-    //                 click: function () {
-    //                     $(this).dialog('close');
-    //                 }
-    //             }]
-    //     });
-    //     $confirmDialog.dialog('open');
-    // }
 })

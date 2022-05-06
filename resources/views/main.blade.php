@@ -34,4 +34,6 @@
     @include('dialogs.task_add')
     @include('dialogs.task_edit')
     @include('dialogs.confirm')
+    @include('dialogs.rating')
 @endsection
+

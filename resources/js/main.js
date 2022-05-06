@@ -4,6 +4,16 @@ $(document).ready(function () {
     const $taskEditDialog = $('#task_edit_dialog');
     const $taskAddDialog = $('#task_add_dialog');
     const $tasksTable = $('#task_list_table');
+    const $openModal = $("#openModal");
+
+    $openModal.dialog({
+        autoOpen: false,
+        modal: true,
+        resizable: true,
+        dialogClass: 'card no-close',
+        width: 400,
+        closeOnEscape: false,
+    });
 
     $taskAddDialog.dialog({
         autoOpen: false,
@@ -111,19 +121,40 @@ $(document).ready(function () {
                 if ($mpageXDown !== $mpageXUp || $mpageYDown !== $mpageYUp) return;
                 if ($timer) clearTimeout($timer);
                 if (event.target.type === 'button') {
-                    let [type, taskId] = event.target.id.split("_");
-                    if (type === 'taskToWork') {
-
-                        confirmDialog('Вы уверены, что хотите взять задачу №' + taskId, () => {
-                            axios.post('/user/task/link', {taskId}).then(r => {
-                                let parent = $(event.target).parent();
-                                parent.closest('.tasks_row').remove();
-                                toastr.success('Успех!');
-                            }).catch(e => {
-                                toastr.error('Ошибка сервера обратитесь к системному администратору');
-                            })
-                        });
-
+                    let [type, id] = event.target.id.split("_");
+                    switch (type) {
+                        case 'payForWork':
+                            alert('А тут создается в бд запись, если нужно ордер в 1с, происходит редирект на платежную систему, ' +
+                                'после оплаты ПС отправит success на специальный url. ' +
+                                'Результаты платежа подтвержаются. Если нужно, вешается задача для проведения платежа в 1C')
+                            break;
+                        case 'sendStar':
+                            getUsers(id).then(r => {
+                                $openModal.on('click', '#rating_btn', function (e) {
+                                    let attr = $('.rating-area input[type=radio]:checked').val();
+                                    axios.put('/rating/' + id, {rating: attr})
+                                        .then(r => {
+                                            $openModal.dialog('close')
+                                            toastr.success('Успех!');
+                                        }).catch(e => {
+                                        toastr.error('Ошибка сервера обратитесь к системному администратору');
+                                    });
+                                    $openModal.off('click');
+                                });
+                                $openModal.dialog({title: 'Оцените работу, ' + r.data.name}).dialog('open');
+                            });
+                            break;
+                        case 'taskToWork':
+                            confirmDialog('Вы уверены, что хотите взять задачу №' + id, () => {
+                                axios.post('/user/task/' + {id} + '/link').then(r => {
+                                    let parent = $(event.target).parent();
+                                    parent.closest('.tasks_row').remove();
+                                    toastr.success('Успех!');
+                                }).catch(e => {
+                                    toastr.error('Ошибка сервера обратитесь к системному администратору');
+                                })
+                            });
+                            break;
                     }
                 } else {
                     $timer = setTimeout(() => {
@@ -164,6 +195,7 @@ $(document).ready(function () {
             deferRender: true,
             autoWatch: true,
             stateSave: true,
+
             ajax: {
                 url: "/tasks",
                 type: "GET",
@@ -171,9 +203,11 @@ $(document).ready(function () {
                     return data.data;
                 }
             },
+
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass('tasks_row');
             },
+
             columnDefs: [
                 {
                     targets: "_all",

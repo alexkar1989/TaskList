@@ -9,4 +9,104 @@
         vertical-align: middle
 
 
+#openModal
+    .modal-content
+        position: relative
+        display: -webkit-box
+        display: -webkit-flex
+        display: -ms-flexbox
+        display: flex
+        -webkit-box-orient: vertical
+        -webkit-box-direction: normal
+        -webkit-flex-direction: column
+        -ms-flex-direction: column
+        flex-direction: column
+        background-color: #fff
+        -webkit-background-clip: padding-box
+        background-clip: padding-box
+        border: 1px solid rgba(0, 0, 0, .2)
+        border-radius: .3rem
+        outline: 0
 
+    .modal-body
+        position: relative
+        -webkit-box-flex: 1
+        -webkit-flex: 1 1 auto
+        -ms-flex: 1 1 auto
+        flex: 1 1 auto
+
+.rating-area
+    padding: 1rem 0
+    overflow: hidden
+    width: 208px
+    margin: 0 auto
+
+    &:not(:checked)
+        > input
+            display: none
+
+        > label
+            float: right
+            width: 2.6rem
+            padding: 0
+            cursor: pointer
+            font-size: 50px
+            line-height: 50px
+            color: #d3d3d3
+            text-shadow: 1px 1px #bbb
+
+            &:before
+                content: '★'
+
+            &:hover:not(.none),
+            &:hover ~ label:not(.none)
+                color: gold
+
+    > input
+        &:checked
+            ~ label
+                color: gold
+                text-shadow: 1px 1px #c60
+
+            + label:hover,
+            + label:hover ~ label,
+            ~ label:hover,
+            ~ label:hover ~ label
+                color: gold
+                text-shadow: 1px 1px goldenrod
+
+    > label
+        &:hover ~ input:checked ~ label
+            color: gold
+            text-shadow: 1px 1px goldenrod
+
+        &:active
+            position: relative
+
+.rating-static
+    padding: 0
+    margin: 0
+    width: 120px
+
+    &:not(:checked)
+        > input
+            display: none
+
+        > label
+            float: right
+            width: 1.5rem
+            padding: 0
+            cursor: pointer
+            font-size: 30px
+            line-height: 25px
+            color: #d3d3d3
+            text-shadow: 1px 1px #bbb
+
+            &:before
+                content: '★'
+
+    > input
+        &:checked
+            ~ label
+                color: gold
+                text-shadow: 1px 1px #c60
