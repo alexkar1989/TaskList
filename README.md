@@ -1,6 +1,6 @@
 # Task list
 
-Для установки Копируем .env.example в .env Настраиваем бд (Mysql/MariaDB)
+Для установки Копируем .env.example в .env Настраиваем бд (MariaDB >= 10.5.15)
 
 Делаем
 
