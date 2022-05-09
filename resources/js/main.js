@@ -146,7 +146,7 @@ $(document).ready(function () {
                             break;
                         case 'taskToWork':
                             confirmDialog('Вы уверены, что хотите взять задачу №' + id, () => {
-                                axios.post('/user/task/' + {id} + '/link').then(r => {
+                                axios.post('/user/task/' + id + '/link').then(r => {
                                     let parent = $(event.target).parent();
                                     parent.closest('.tasks_row').remove();
                                     toastr.success('Успех!');
