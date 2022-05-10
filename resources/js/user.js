@@ -23,6 +23,7 @@ $(document).ready(function () {
             axios.post('/user/task/' + taskId + '/complete').then(r => {
                 let row = $(this).closest('.tasks_row');
                 row.find('.status').html('Завершена');
+                $('#taskCancel_' + taskId).hide();
                 $(this).hide();
                 toastr.success('Успех!');
             }).catch(e => {

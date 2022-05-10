@@ -20,10 +20,12 @@ class RatingController extends Controller
     {
         $result = [];
         User::with('rating')->whereHas('roles', fn($query) => $query->where('role', 'worker'))->each(function($user, $index) use (&$result) {
-            $rCount = $user->rating->count();
-            $rSum = $user->rating->pluck('id')->sum();
-            $result[$index] = $user->toArray();
-            $result[$index]['rating'] = (int)round($rSum / $rCount);
+            if($user->rating->isNotEmpty()) {
+                $rCount = $user->rating->count();
+                $rSum = $user->rating->pluck('rating')->sum();
+                $result[$index] = $user->toArray();
+                $result[$index]['rating'] = (int)round($rSum / $rCount);
+            }
         });
         return view('userRatings', ['users' => $result]);
     }
