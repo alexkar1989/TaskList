@@ -32,7 +32,12 @@
         </div>
     </div>
     @include('dialogs.task_add')
+    @role('worker')
+    @include('dialogs.task_info')
+    @endrole
+    @notrole('worker')
     @include('dialogs.task_edit')
+    @endrole
     @include('dialogs.confirm')
     @include('dialogs.rating')
 @endsection

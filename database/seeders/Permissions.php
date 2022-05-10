@@ -19,8 +19,14 @@ class Permissions extends Seeder
             'permission' => 'task_create',
             'name' => 'Создание задачи',
         ], [
+            'permission' => 'task_edit',
+            'name' => 'Редактирование задачи'
+        ], [
             'permission' => 'task_remove',
             'name' => 'Удаление задачи'
+        ], [
+            'permission' => 'task_show',
+            'name' => 'Просмотр задачи'
         ], [
             'permission' => 'file_attach',
             'name' => 'Подключение файлов'

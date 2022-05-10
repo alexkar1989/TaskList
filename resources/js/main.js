@@ -1,8 +1,9 @@
-const {getTaskInfo, getUsers, confirmDialog} = require("./functions");
+const {getTaskInfo, getUsers, confirmDialog, getUserRoles} = require("./functions");
 
 $(document).ready(function () {
     const $taskEditDialog = $('#task_edit_dialog');
     const $taskAddDialog = $('#task_add_dialog');
+    const $taskInfoDialog = $('#task_info_dialog');
     const $tasksTable = $('#task_list_table');
     const $openModal = $("#openModal");
 
@@ -30,9 +31,10 @@ $(document).ready(function () {
                 class: 'btn btn-primary',
                 click: function () {
                     axios.put('/task', {
-                        title: $('#task_add_title').val(),
-                        text: $('#task_add_text').val(),
-                        cost: $('#task_add_cost').val(),
+                        task_add_title: $('#task_add_title').val(),
+                        task_add_text: $('#task_add_text').val(),
+                        task_add_cost: $('#task_add_cost').val(),
+                        task_add_files: $('#task_add_files').val(),
                     }).then(r => {
                         $(this).dialog('close');
                         $('#task_add_form').trigger('reset');
@@ -70,11 +72,14 @@ $(document).ready(function () {
                 class: 'btn btn-success',
                 click: function () {
                     let taskId = $('#task_edit_id').val();
+                    //let formData = new FormData($('form#task_edit_form').get(0));
+                    //{headers: {'Content-Type': 'multipart/form-data'}}
                     axios.post('/task/' + taskId, {
-                        title: $('#task_edit_title').val(),
-                        text: $('#task_edit_text').val(),
-                        cost: $('#task_edit_cost').val(),
-                        worker: $('#worker_select').val(),
+                        task_edit_title: $('#task_edit_title').val(),
+                        task_edit_text: $('#task_edit_text').val(),
+                        task_edit_cost: $('#task_edit_cost').val(),
+                        task_edit_worker: $('#task_edit_worker').val(),
+                        task_edit_files: $('#task_edit_files').val(),
                     }).then(() => {
                         $(this).dialog('close');
                         $('#task_edit_form').trigger('reset');
@@ -91,6 +96,26 @@ $(document).ready(function () {
                 click: function () {
                     $(this).dialog('close');
                     $('#task_edit_form').trigger('reset');
+                }
+            }
+        ]
+    });
+
+    $taskInfoDialog.dialog({
+        autoOpen: false,
+        modal: true,
+        title: 'Добавить задачу',
+        resizable: true,
+        dialogClass: 'card no-close',
+        width: 600,
+        closeOnEscape: false,
+        buttons: [
+            {
+                id: 'info_close_btn',
+                text: 'Закрыть',
+                class: 'btn btn-danger',
+                click: function () {
+                    $(this).dialog('close');
                 }
             }
         ]
@@ -163,24 +188,49 @@ $(document).ready(function () {
                             taskId = $(this).children('#taskId').html();
 
                         getTaskInfo(taskId).then(task => {
-                            $('#task_edit_id_h3 span').html(task.data.id);
-                            $('#task_edit_id').val(task.data.id);
-                            $('#task_edit_title').val(task.data.title);
-                            $('#task_edit_text').html(task.data.text);
-                            $('#task_edit_cost').val(task.data.cost);
-
-                            wSelect.find('option').remove();
-
-                            getUsers().then(r => {
-                                wSelect.append("<option value=''></option>");
-                                r.data.forEach((user) => {
-                                    wSelect.append("<option value=" + user.id + ">" + user.name + "</option>");
-                                });
-                                if (task.data.user_id !== null) {
-                                    $('#worker_select option[value=' + task.data.user_id + ']').prop('selected', 'selected');
+                            if (task.data.status !== 'complete') {
+                                if (task.data.files.length !== 0) {
+                                    $('#taskFiles').show();
+                                    $('#attachedTaskFiles').find('li').remove();
+                                    task.data.files.forEach(file => {
+                                        $('#attachedTaskFiles').append('<li><a href="/getFile/' + task.data.id + '/' + file.id + '">' + file.name + '</a></li>');
+                                    });
                                 }
-                            });
-                            $taskEditDialog.dialog('open');
+
+                                getUserRoles().then(roles => {
+                                    if ($.inArray('worker', roles.data) !== -1) {
+                                        $('#task_info_id_h3 span').html(task.data.id);
+                                        $('#task_info_id').val(task.data.id);
+                                        $('#task_info_title').val(task.data.title);
+                                        $('#task_info_text').html(task.data.text);
+                                        $('#task_info_cost').val(task.data.cost);
+
+                                        $taskInfoDialog.dialog('open');
+                                    } else {
+                                        $('#task_edit_id_h3 span').html(task.data.id);
+                                        $('#task_edit_id').val(task.data.id);
+                                        $('#task_edit_title').val(task.data.title);
+                                        $('#task_edit_text').html(task.data.text);
+                                        $('#task_edit_cost').val(task.data.cost);
+
+                                        wSelect.find('option').remove();
+
+                                        getUsers().then(r => {
+                                            wSelect.append("<option value=''></option>");
+                                            r.data.forEach((user) => {
+                                                wSelect.append("<option value=" + user.id + ">" + user.name + "</option>");
+                                            });
+                                            if (task.data.user_id !== null) {
+                                                $('#worker_select option[value=' + task.data.user_id + ']').prop('selected', 'selected');
+                                            }
+                                        });
+                                        $taskEditDialog.dialog('open');
+                                    }
+                                });
+
+                            } else toastr.warning('Задача завершена. Изменить невозможно');
+                        }).catch(e => {
+                            console.log(e);
                         });
                     }, 200);
                 }

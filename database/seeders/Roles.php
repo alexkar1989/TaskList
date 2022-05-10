@@ -25,8 +25,8 @@ class Roles extends Seeder
 
         Role::where('role', 'administrator')->first()->permissions()->attach(Permission::all()->pluck('id'));
         Role::where('role', 'employer')->first()->permissions()->attach(
-            Permission::whereIn('permission', ['task_create', 'file_attach', 'archive'])->pluck('id'));
+            Permission::whereIn('permission', ['task_create', 'task_edit', 'file_attach', 'archive','task_attach'])->pluck('id'));
         Role::where('role', 'worker')->first()->permissions()->attach(
-            Permission::whereIn('permission', ['task_attach'])->pluck('id'));
+            Permission::whereIn('permission', ['task_show'])->pluck('id'));
     }
 }

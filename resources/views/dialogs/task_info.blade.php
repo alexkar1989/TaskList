@@ -17,10 +17,11 @@
                 <input id="task_info_cost" type="number" name="task_info_cost" class="form-control" disabled readonly/>
             </div>
         </div>
-        <div>
+        <div id="taskFiles" style="display: none">
             <div class="form-control m-3">
-                <label class="input-group-text mb-2" for="task_info_cost">Файлы</label>
-                <p><a href="" download>Скачать файл</a>
+                <label class="input-group-text mb-2" for="attachedTaskFiles">Файлы</label>
+                <ul id="attachedTaskFiles">
+                </ul>
             </div>
         </div>
     </div>

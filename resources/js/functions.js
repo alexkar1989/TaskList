@@ -19,6 +19,14 @@ export const getUsers = async (id = 0) => {
 
 /**
  *
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getUserRoles = async () => {
+    return await axios.get('/userRole');
+}
+
+/**
+ *
  * @param {string}text
  * @param {function}closure
  */

@@ -12,6 +12,14 @@ $(document).ready(function () {
             $('#task_info_title').val(task.data.title);
             $('#task_info_text').html(task.data.text);
             $('#task_info_cost').val(task.data.cost);
+
+            if (task.data.files.length !== 0) {
+                $('#taskFiles').show();
+                $('#attachedTaskFiles').find('li').remove();
+                task.data.files.forEach(file => {
+                    $('#attachedTaskFiles').append('<li><a href="/getFile/' + task.data.id + '/' + file.id + '">' + file.name + '</a></li>');
+                });
+            }
             $taskInfoDialog.dialog('open');
         })
     })
@@ -27,7 +35,6 @@ $(document).ready(function () {
                 $(this).hide();
                 toastr.success('Успех!');
             }).catch(e => {
-
                 toastr.error('Ошибка сервера обратитесь к системному администратору');
             })
         });

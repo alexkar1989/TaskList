@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
+use App\Models\File;
 use App\Models\Task;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +18,6 @@ class TasksController extends Controller
      */
     public function index(TaskRequest $request): JsonResponse|Redirector|RedirectResponse|Application
     {
-        //if (!$request->ajax()) return redirect('/');
         if ($request->user->hasRole('administrator')) $tasks = Task::with('user')->get();
         else if ($request->user->hasRole('employer')) $tasks = Task::where('creator_id', $request->user->id)->with('user')->get();
         else $tasks = Task::where('user_id', 0)->where('status', 0)->get();
@@ -74,17 +74,30 @@ class TasksController extends Controller
         if ($request->user->hasPermission('task_create')) {
 
             $params = $request->input();
+
             $query = [
-                'title' => $params['title'],
-                'text' => $params['text'] ?? '',
-                'cost' => $params['cost'] ?? 0,
+                'title' => $params['task_add_title'],
+                'text' => $params['task_add_text'] ?? '',
+                'cost' => $params['task_add_cost'] ?? 0,
                 'creator_id' => $request->user->id,
                 'status' => 'new',
             ];
             $task = Task::create($query);
-//            if (!empty($params['files'])) {
-//                dd($params);
-//            }
+
+            if ($request->user->hasPermission('file_attach')) {
+                $files = $request->file('task_add_files');
+                if (!empty($files)) {
+                    foreach ($files as $file) {
+                        File::create([
+                            'task_id' => $task->id,
+                            'name' => $file->getClientOriginalName(),
+                            'file' => base64_encode($file->getContent()),
+                            'type' => $file->getClientMimeType(),
+                            'size' => $file->getSize()
+                        ]);
+                    }
+                }
+            }
 
             if ($task->id) return response()->json(null, 201);
             else return response()->json(null, 400);
@@ -99,7 +112,6 @@ class TasksController extends Controller
      */
     public function show(TaskRequest $request, int $taskId): JsonResponse|Redirector|RedirectResponse|Application
     {
-        if (!$request->ajax()) return redirect('/');
         return Response()->json(Task::where('id', $taskId)->with('files')->first());
     }
 
@@ -110,24 +122,46 @@ class TasksController extends Controller
      */
     public function update(TaskRequest $request, int $taskId): JsonResponse|Redirector|RedirectResponse|Application
     {
-        if (!$request->ajax()) return redirect('/');
-        $params = $request->input();
-        $task = Task::where('id', $taskId)->first();
-        if ($task->id) {
-            $query = [
-                'title' => $params['title'],
-                'text' => $params['text'],
-                'cost' => $params['cost'],
-            ];
-            $task->update($query);
-            if ($params['worker'] !== null) {
-                $task->user_id = $params['worker'];
-                $task->status = 'in_work';
-                $task->save();
+        if ($request->user->hasPermission('task_edit')) {
+            $params = $request->input();
+            $task = Task::where('id', $taskId)->first();
+            if ($task->status === 'complete') return response()->json('Нельзя изменять завершенную задачу', 400);
+            if ($task->id) {
+                $query = [
+                    'title' => $params['task_edit_title'],
+                    'text' => $params['task_edit_text'] ?? '',
+                    'cost' => $params['task_edit_cost'] ?? 0,
+                ];
+                $task->update($query);
+
+                if ($request->user->hasPermission('task_attach')) {
+                    if (isset($params['task_edit_worker']) && $params['task_edit_worker'] !== null) {
+                        $task->user_id = $params['task_edit_worker'];
+                        $task->status = 'in_work';
+                        $task->save();
+                    }
+                }
+
+                if ($request->user->hasPermission('file_attach')) {
+                    $files = $request->file('task_edit_files');
+                    if (!empty($files)) {
+                        foreach ($files as $file) {
+                            //$file->move(storage_path('files'), $fileName);
+                            File::updateOrCreate([
+                                'task_id' => $taskId,
+                                'name' => $file->getClientOriginalName(),
+                                'file' => base64_encode($file->getContent()),
+                            ], [
+                                'type' => $file->getClientMimeType(),
+                                'size' => $file->getSize()
+                            ]);
+                        }
+                    }
+                }
+                return response()->json(null, 204);
             }
-            return response()->json(null, 204);
-        }
-        return response()->json(null, 404);
+            return response()->json(null, 404);
+        } else return response()->json(null, 403);
     }
 
     /**
@@ -137,7 +171,6 @@ class TasksController extends Controller
      */
     public function destroy(TaskRequest $request, int $taskId): JsonResponse|Redirector|Application|RedirectResponse
     {
-        if (!$request->ajax()) return redirect('/');
         if ($request->user->hasPermission('task_remove')) {
             Task::where('id', $taskId)->delete();
             return response()->json(null, 204);

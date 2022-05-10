@@ -27,10 +27,11 @@ Route::group([
 ], function() {
 
     Route::get('/', [MainController::class, 'index'])->name('main');
-
+    Route::get('/userRole', [MainController::class, 'getUserRole'])->name('userRole');
+    Route::get('/getFile/{taskId}/{fileId}', [MainController::class, 'downloadFile']);
     Route::get('/tasks', [TasksController::class, 'index'])->name('getTasks');
     Route::get('/task/{taskId}', [TasksController::class, 'show'])->name('taskInfo');
-    Route::put('/task', [TasksController::class, 'store'])->name('taskStore');
+    Route::post('/task', [TasksController::class, 'store'])->name('taskStore');
     Route::post('/task/{taskId}', [TasksController::class, 'update'])->name('taskUpdate');
     Route::delete('/task/{taskId}', [TasksController::class, 'destroy'])->name('taskRemove');
 

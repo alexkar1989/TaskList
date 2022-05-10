@@ -13,10 +13,8 @@ class File extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'task_id',
-        'name',
-        'type',
-        'size'
-    ];
+    protected $fillable = ['task_id', 'file', 'name', 'type', 'size'];
+
+    protected $hidden = ['file', 'task_id'];
+
 }

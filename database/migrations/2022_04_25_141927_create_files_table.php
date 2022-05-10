@@ -12,9 +12,10 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('files', function (Blueprint $table) {
+        Schema::create('files', function(Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('task_id');
+            $table->longText('file');
             $table->string('name');
             $table->string('type');
             $table->string('size');
