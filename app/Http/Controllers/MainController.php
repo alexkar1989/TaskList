@@ -34,8 +34,10 @@ class MainController extends Controller
     public function downloadFile($taskId, $fileId)
     {
         $file = Task::where('id', $taskId)->with('files', fn($query) => $query->where('id', $fileId))->first()?->files->first();
-        if (Storage::put($file->name, base64_decode($file->file))) {
-            return Storage::download($file->name);
-        }
+        return response(base64_decode($file->file))->withHeaders([
+            'Content-Type' => $file->type,
+            'Content-Disposition' => 'attachment; filename="' . $file->name . '"',
+            'Content-Length' => $file->size,
+        ]);
     }
 }
