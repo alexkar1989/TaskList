@@ -176,5 +176,4 @@ class TasksController extends Controller
             return response()->json(null, 204);
         } else return response()->json(null, 403);
     }
-
 }

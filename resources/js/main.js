@@ -30,7 +30,7 @@ $(document).ready(function () {
                 text: 'Добавить',
                 class: 'btn btn-primary',
                 click: function () {
-                    axios.put('/task', {
+                    axios.post('/task', {
                         task_add_title: $('#task_add_title').val(),
                         task_add_text: $('#task_add_text').val(),
                         task_add_cost: $('#task_add_cost').val(),
