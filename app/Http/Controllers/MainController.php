@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Storage;
 
 class MainController extends Controller
 {
@@ -31,7 +32,12 @@ class MainController extends Controller
         else return response()->json(null, 204);
     }
 
-    public function downloadFile($taskId, $fileId)
+    /**
+     * @param int $taskId
+     * @param int $fileId
+     * @return Application|ResponseFactory|Response
+     */
+    public function downloadFile(int $taskId, int $fileId): Response|Application|ResponseFactory
     {
         $file = Task::where('id', $taskId)->with('files', fn($query) => $query->where('id', $fileId))->first()?->files->first();
         return response(base64_decode($file->file))->withHeaders([

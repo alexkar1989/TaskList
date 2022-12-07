@@ -58,8 +58,8 @@
             &:before
                 content: '★'
 
-            &:hover:not(.none),
-            &:hover ~ label:not(.none)
+            &:hover,
+            &:hover ~ label
                 color: gold
 
     > input
@@ -75,13 +75,6 @@
                 color: gold
                 text-shadow: 1px 1px goldenrod
 
-    > label
-        &:hover ~ input:checked ~ label
-            color: gold
-            text-shadow: 1px 1px goldenrod
-
-        &:active
-            position: relative
 
 .rating-static
     padding: 0

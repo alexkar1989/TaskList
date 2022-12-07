@@ -146,7 +146,6 @@ class TasksController extends Controller
                     $files = $request->file('task_edit_files');
                     if (!empty($files)) {
                         foreach ($files as $file) {
-                            //$file->move(storage_path('files'), $fileName);
                             File::updateOrCreate([
                                 'task_id' => $taskId,
                                 'name' => $file->getClientOriginalName(),
